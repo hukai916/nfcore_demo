@@ -1,8 +1,8 @@
 # Setup a nf-core environment
 
 ## Step0: create new conda env: demo_nfcore
-conda create --name demo_nfcore python=3.9 <br>
-conda activate demo_nfcore
+conda create --name nfcore_demo python=3.9 <br>
+conda activate nfcore_demo
 
 ## Step1: install Nextflow:
 conda install -c bioconda nextflow <br>
