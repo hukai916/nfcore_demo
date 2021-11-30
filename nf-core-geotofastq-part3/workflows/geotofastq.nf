@@ -79,42 +79,23 @@ include { MERGE_TSV } from '../modules/local/merge_tsv'
 def multiqc_report = []
 
 workflow GEOTOFASTQ {
-
     ch_software_versions = Channel.empty()
-
     if (params.geo) {
       log.info "GEO ID supplied, will retrieve sample sheet."
-      ch_input = Channel
-                      .fromList(file(params.geo).readLines())
-                      .map { it.replaceAll("\\s","") }
-
       CHECK_GEO(file(params.geo))
-
-      // SRA_IDS_TO_RUNINFO(ch_input, false)
       SRA_IDS_TO_RUNINFO(CHECK_GEO.out.geo, false)
-
       SRA_RUNINFO_TO_FTP(SRA_IDS_TO_RUNINFO.out.tsv)
-
       SRA_RUNINFO_TO_FTP.out.tsv.view()
-      // Merge all unique samples:
-      MERGE_TSV(SRA_RUNINFO_TO_FTP
-                    .out
-                    .tsv
-                    .collect()
-                )
+      MERGE_TSV(SRA_RUNINFO_TO_FTP.out.tsv.collect())
     } else if (params.input) {
       log.info "Samplesheet supplied, will download fastq files."
-
       CHECK_INPUT(file(params.input))
-
       SRA_FASTQ_FTP(CHECK_INPUT.out.reads)
-
       FASTQC(SRA_FASTQ_FTP.out.fastq)
-
       CUTADAPT(SRA_FASTQ_FTP.out.fastq)
-    } else {
-      exit 1, 'Pls supply either GEO id text file (--geo) or samplesheet tsv file (--input)!'
     }
+
+
 
     //
     // MODULE: Pipeline reporting
